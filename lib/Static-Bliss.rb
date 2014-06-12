@@ -1,9 +1,10 @@
 
-class EpicGeo
+class StaticBliss
 	
 	#Require all of the sub modules
-	require_relative 'kml/kml_writer'
-	require_relative 'geojson/write_geojson_featurecollection'
+	def initialize
+		puts "Initialized Static Bliss"
+	end
 
 	def self.hi
 		puts "Hello world!"
