@@ -1,55 +1,47 @@
-require 'rubygems'
-require 'aws/s3'
-require 'fileutils'
+require 's3'
+require 'aws-sdk'
 
-'''
-Some data taken From: https://gist.github.com/digitalsanctum/643716
-'''
+class BucketManager
 
-ACCESS_KEY_ID = "AKIAJ7UP7VZ3XEYHOBMQ"
-SECRET_ACCESS_KEY = "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"
+  attr_accessor :bucket
 
-UPLOAD_DIR = "/Users/jenningsanderson/Dropbox/jekyll/epic/_site"
-BUCKET = "epic.cs.colorado.edu"
-KEY_PREFIX = ""
+  def initialize(access_key_id, secret_access_key)
 
-mime_types = Hash.new()
-mime_types = {:css => 'text/css'}
-
-class Upload
-  def initialize
-    AWS::S3::Base.establish_connection!(
-      :access_key_id => ACCESS_KEY_ID,
-      :secret_access_key => SECRET_ACCESS_KEY
-    )
+    @s3 = AWS::S3.new(
+                    :access_key_id      => access_key_id,
+                    :secret_access_key  => secret_access_key)
   end
 
-  def put(local_file)
-    base_name = local_file.gsub(UPLOAD_DIR+'/','')
-    #mime_type = mime_type(local_file)
-
-    puts "Writing #{base_name}"
-
-    AWS::S3::S3Object.store(
-      "#{KEY_PREFIX}#{base_name}",
-      File.open(local_file),
-      BUCKET,
-      :access => :public_read
-    )
-    puts "Upload completed"
+  def connect_to_bucket(bucket)
+    @bucket = @s3.buckets[bucket]
   end
 
-  def mime_type(f)
-    mimetype = `file --mime-type --brief #{f}`
+  def write_file(file)
+    if @upload_dir.nil?
+      base_name = File.basename(file)
+    else
+      base_name = file.gsub(@upload_dir+'/','')
+    end
+    @bucket.objects[base_name].write(:file => file)
   end
-end
 
-files = Dir.glob(UPLOAD_DIR+"/**/*").reject { |file_path| File.directory? file_path }
+  def write_directory(dir_path)
+    @upload_dir = dir_path
 
-uploader = Upload.new()
+    files = Dir.glob(dir_path+"/**/*").reject { |file_path| File.directory? file_path }
 
-puts "Beginning upload"
+    files.each do |file|
+      write_file(file)
+    end
+  end
 
-files.each do |f|
-  uploader.put(f)
+  def object_count
+    count = 0
+    @bucket.objects.each{|obj| count+=1}
+    return count
+  end
+
+  def empty_bucket
+    @bucket.objects.each{|obj| obj.delete}
+  end
 end

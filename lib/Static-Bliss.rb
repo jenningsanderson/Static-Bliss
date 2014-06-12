@@ -1,7 +1,6 @@
-
 class StaticBliss
-	
-	#Require all of the sub modules
+	require_relative 'aws/bucket_manager'
+
 	def initialize
 		puts "Initialized Static Bliss"
 	end
