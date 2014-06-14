@@ -8,6 +8,8 @@
 # require 'coveralls'
 # Coveralls.wear!
 
+require 'yaml'
+
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
@@ -22,3 +24,6 @@ end
 
 #Require the gem
 require_relative '../lib/Static-Bliss'
+
+#Load a private configuration for testing
+private_config = YAML::load(File.open('private_config.yml')
