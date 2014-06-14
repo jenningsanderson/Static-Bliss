@@ -9,13 +9,7 @@ class GoogleDriveYAMLParser
 	attr_accessor :google_drive_data
 
 	def initialize(username=nil, password=nil)
-		username ||= "cuprojectepic@gmail.com"		# When it actually hits production,
-		password ||= "CrisisInformatics2014"		# we will remove this
 		@session = GoogleDrive.login(username,password)
-
-		@yml_config 		= YAML::load(File.open('_config.yml'))
-		@google_drive_data 	= yml_config['google_info']
-		@write_directory 	= yml_config['write_directory']
 	end
 
 	def set_parameters(params)
@@ -85,12 +79,9 @@ class GoogleDriveYAMLParser
 end #End YAMLAuthor
 
 def update_page(type, sheet, param)
-	key = @@site_data[type]['key']
-	object_type=@@site_data[type]["object"]
+	key = SITE_CONFIG['google_info'][type]['key']
+	object_type=SITE_CONFIG['google_info'][type]["object"]
 
-	object_directory = @@buildtasks_dir+'/'+object_type.downcase
-	puts "Requiring #{object_directory}"
-	require object_directory
 	
 	puts "Going to Google Drive to Update: "
 	puts "\tType: #{type}"
@@ -99,6 +90,6 @@ def update_page(type, sheet, param)
 	puts "\tKey: #{key}"
 
 	objects = parse_spreadsheet(object_type,key,sheet, param)
-	write_to_yaml(objects, @@write_directory, sheet)
+	write_to_yaml(objects, SITE_CONFIG['data_directory'], sheet)
 	puts "==================================================================="
 end

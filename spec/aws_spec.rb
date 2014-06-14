@@ -1,10 +1,15 @@
 require "spec_helper"
+
 describe BucketManager do
+  before :all do
+    @credentials = YAML::load(File.open('spec/_secret_config.yml'))
+    @config = YAML::load(File.open('spec/_config.yml'))
+  end
+
   before :each do
     #Authenticate to the bucket
-    @manager = BucketManager.new('AKIAIOPW3QLAY6LOB24Q', 
-                                 'BoV/dW3H4TZwkIkqAXt13J93yRjROlufv1yAgWkz')
-    @manager.connect_to_bucket('www.townsendjennings.com')
+    @manager = BucketManager.new(@credentials['s3_id'], @credentials['s3_secret'])
+    @manager.connect_to_bucket(@credentials['production_bucket'])
 	end
 
 	it "Can access contents of bucket" do

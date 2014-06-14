@@ -24,6 +24,3 @@ end
 
 #Require the gem
 require_relative '../lib/Static-Bliss'
-
-#Load a private configuration for testing
-private_config = YAML::load(File.open('private_config.yml')

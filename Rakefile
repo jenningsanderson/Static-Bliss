@@ -1,15 +1,46 @@
 require_relative 'lib/Static-Bliss'
 
-desc "Build and publish the entire website"
-task :publish do
-	puts "Need to find a way to properly authenticate here"
+#Initialize the environment by loading the configuration files
+
+if File.exists?('_config.yml')
+	puts "Loading site_config from _config.yml"
+	SITE_CONFIG = YAML::load(File.open('_config.yml'))
+else
+	puts "Entering test environment, _config.yml does not exist"
+	SITE_CONFIG = YAML::load(File.open('spec/_config.yml'))
 end
 
-GDrive = GoogleDriveYAMLParser.new(username="cuprojectepic@gmail.com",password="CrisisInformatics2014")
+if File.exists?(SITE_CONFIG['credentials'])
+	puts "Loading credentials from site_config location"
+	CREDENTIALS = YAML::load(File.open(SITE_CONFIG['credentials']))
+else
+	puts "You do not have a proper credentials file defined in _config.yml"
+end
+
+#Now create the appropriate connections
+publisher = BucketManager.new(CREDENTIALS['s3_id'], CREDENTIALS['s3_secret'])
+g_drive   = GoogleDriveYAMLParser.new(CREDENTIALS['google_username'], CREDENTIALS['google_password'])
+
+
+
+#Start the rake tasks here
+desc "Build and publish the entire website"
+task :publish do
+
+	puts "Connecting to bucket"
+
+	publisher.connect_to_bucket(credentials['production_bucket'])
+	
+  	`jekyll build --destination _to_upload`
+  	
+  	publisher.write_directory('_to_upload')
+ end
+
+
 
 #My favorite piece of metaprogramming:
 namespace :update do
-	GDrive.google_drive_data.each do |symbol, data|
+	SITE_CONFIG['google_info'].each do |symbol, data|
 		eval %Q{
 			if data["types"].length == 1
 				desc "Updates the #{data["types"][0]} page from Google Drive data"
@@ -45,5 +76,5 @@ namespace :update do
     			t.invoke(args[:arg1]) if t.name =~ /^update:/
     		end
     	end
-  end
+  	end
 end #End namespace
