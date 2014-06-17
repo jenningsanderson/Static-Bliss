@@ -1,12 +1,12 @@
 Gem::Specification.new do |s|
   s.name              = "Static-Bliss"
-  s.version           = "0.0.2"
+  s.version           = "0.0.3"
   s.platform          = Gem::Platform::RUBY
   s.authors           = ["Jennings Anderson"]
   s.email             = ["jennings.anderson@colorado.edu"]
   s.homepage          = "http://github.com/jenningsanderson/Static-Bliss"
   s.summary           = "A gem for quazi-dynamic updating and publishing to static sources"
-  s.description       = "A lot of development happening here..."
+  s.description       = "A lot of development happening here... hang tight!"
   s.rubyforge_project = s.name
 
   #s.required_rubygems_version = ">= 1.3.6"
@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   # s.add_runtime_dependency "other", "~> 1.2"
   s.add_runtime_dependency "s3"
   s.add_runtime_dependency "aws-sdk" #This is an important dependency to allow the geo calculations
+  s.add_runtime_dependency "google_drive"
   # It will need all sorts of dependencies such as rgeo, ruby/gems, etc...
 
   # If you have development dependencies, add them here
