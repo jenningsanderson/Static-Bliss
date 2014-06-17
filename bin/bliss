@@ -1,1 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'Static-Bliss'
+
 puts "Hello"
