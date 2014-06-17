@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   # The list of files to be contained in the gem
   s.files         = `git ls-files`.split("\n")
-  # s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
+  s.executables   = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
   # s.extensions    = `git ls-files ext/extconf.rb`.split("\n")
 
   s.require_path = 'lib'
