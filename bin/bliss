@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require 'Static-Bliss'
+require_relative '../lib/Static-Bliss'
 
-puts "Hello"
+args = ARGV.dup
+ARGV.clear
+command = args.shift.strip
+
+StaticBliss.new(command, args)
