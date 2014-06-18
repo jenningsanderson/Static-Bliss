@@ -19,8 +19,6 @@ class StaticBliss
 			"oops, failed"
 		end
 
-		puts self.methods
-
 	end
 
 	def read_config
@@ -53,12 +51,21 @@ class StaticBliss
   		@manager.write_directory('_to_upload')
 	end
 
-	def update(args)
+	def update(*args)
 		puts "Reached update with args:"
 		puts "Args: #{args}"
 
 		require_relative 'google_drive/object_types'
 		require_relative 'google_drive/parse_to_yaml'
+
+		sheet = args.shift!
+		key = @site_config['google_info'][sheet]['key']
+		object = @site_config['google_info'][sheet]['object']
+
+		@connection = GoogleDriveYAMLParser.new(@credentials['google_username'], @credentials['google_password'])
+		@connection.set_params(nil)
+
+		@connection.read_sheet @site_config['google_info'][sheet]['key'], sheet, object
 
 		#Now it will call the appropriate update function, based on the arguments passed.
 
@@ -67,6 +74,12 @@ class StaticBliss
 		else
 			#Call the update function for what's available
 		end
+	end
+
+	def help(*args)
+		#This will go through dynamically and figure it all out
+
+		puts "Reached help"
 
 	end
 
