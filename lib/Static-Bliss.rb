@@ -8,17 +8,13 @@ class StaticBliss
 
 		puts "Reading the _config.yml file"
 		read_config
-
-		unless @config.nil?
-			build_update_functions
-		end
+		puts ""
 
 		begin
 			instance_eval "#{command} (#{args})"
 		rescue
 			"oops, failed"
 		end
-
 	end
 
 	def read_config
@@ -35,9 +31,14 @@ class StaticBliss
 			@credentials = YAML::load(File.open(@site_config['credentials']))
 		else
 			puts "You do not have a proper credentials file defined in _config.yml"
+			return false
 		end
 	end
 
+
+
+	#This function uses the secret Amazon s3 credentials to publish the site to an s3 Bucket
+	#defined in the config
 	def publish( *args )
 		puts "Publishing the site to: #{@credentials['production_bucket']}"
 		
@@ -51,36 +52,71 @@ class StaticBliss
   		@manager.write_directory('_to_upload')
 	end
 
-	def update(*args)
-		puts "Reached update with args:"
-		puts "Args: #{args}"
 
+
+	#This workhorse function takes a variety of arguments and allows for 
+	def update(*args)
+		args.flatten!
+		
 		require_relative 'google_drive/object_types'
 		require_relative 'google_drive/parse_to_yaml'
 
-		sheet = args.shift!
-		key = @site_config['google_info'][sheet]['key']
-		object = @site_config['google_info'][sheet]['object']
-
 		@connection = GoogleDriveYAMLParser.new(@credentials['google_username'], @credentials['google_password'])
-		@connection.set_params(nil)
 
-		@connection.read_sheet @site_config['google_info'][sheet]['key'], sheet, object
+		sheet = args.shift
+		types  = [args.shift]
+		if (types[0].nil? or types[0]=='all')
+			types = @site_config['google_info'][sheet]['types']
+		end
 
-		#Now it will call the appropriate update function, based on the arguments passed.
+		parameters = args
+		
+		unless sheet == 'all'
+			begin
+				key 	= @site_config['google_info'][sheet]['key']
+				object 	= @site_config['google_info'][sheet]['object']
 
-		unless args.include? 'all'
-			#update all the pages here, implying, call the update function for all objects
+				types.each do |this_type|
+					#Hit google
+					puts "\nHitting Google for #{sheet} of type #{this_type}"
+					data_to_write = @connection.read_sheet key, this_type.capitalize, object, parameters
+					#Write data
+					@connection.write_to_yaml data_to_write, @site_config['data_directory'], this_type.capitalize
+					puts "========================================================"
+				end
+			
+			rescue
+				puts $!
+				puts "Error, that type of object doesn't exist for this site"
+			end
 		else
-			#Call the update function for what's available
+			puts "Doing all the updates"
+			puts "Will iterate through each object type and run the appropriate functions"
 		end
 	end
 
 	def help(*args)
-		#This will go through dynamically and figure it all out
-
-		puts "Reached help"
-
+		puts "Welcome to Static-Bliss, a gem built to make updating your jekyll site very simple."
+		
+		if read_config
+			puts "\nThe following functions are available based on your configuration:"
+			
+			if @credentials['production_bucket']
+				puts "\tbliss publish"
+			end
+			
+			@site_config['google_info'].each do |object, vals|
+				if vals['types'].count > 1
+					puts "\tbliss update #{object} [all]"
+					vals['types'].each do |type|
+						puts "\tbliss update #{object} #{type}"
+					end
+				else
+					puts "\tbliss update #{object}"
+				end
+			end
+			puts "\tbliss update all"
+			puts "\nNote: Additional parameters for each of these functions may be available depending on your object classes"
+		end
 	end
-
 end

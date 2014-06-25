@@ -4,6 +4,9 @@ require_relative '../lib/Static-Bliss'
 
 args = ARGV.dup
 ARGV.clear
-command = args.shift.strip
 
-StaticBliss.new(command, args)
+begin
+	StaticBliss.new(args.shift.strip, args)
+rescue
+	StaticBliss.new('help', [])
+end

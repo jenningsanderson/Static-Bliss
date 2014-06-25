@@ -72,10 +72,6 @@ end
 
 
 
-
-
-
-
 #This is the toughest one -- needs some work, we'll see what happens
 class Person
 	@@profile_photo_path = "./assets/auto_generated/profile_pics"
@@ -88,7 +84,7 @@ class Person
 	end
 
 	def validate(param)
-		if @gscholar_link and param[:arg1]=='gscholar'
+		if @gscholar_link and param[0]=='gscholar'
 			print "Scraping Google Scholar..."
 			scrape_google_scholar(@gscholar_link)
 			print "done\n"

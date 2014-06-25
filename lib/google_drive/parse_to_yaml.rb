@@ -12,12 +12,10 @@ class GoogleDriveYAMLParser
 		@session = GoogleDrive.login(username,password)
 	end
 
-	def set_parameters(params)
-		@params = params
-	end
+	def read_sheet(key, sheet, object_type, parameters) #That is, name of workbook and then sheet title
 
-	def read_sheet(key, sheet, object_type) #That is, name of workbook and then sheet title
 		ws = @session.spreadsheet_by_key(key).worksheet_by_title(sheet)
+
 		objects = []
 		
 		#Assumes that 3rd row is header (Which it is by design)
@@ -45,7 +43,9 @@ class GoogleDriveYAMLParser
 				end
 			end
 
-			this_object.validate(params)
+			unless parameters.empty?
+				this_object.validate(parameters)
+			end
 
 			objects << this_object	#Add the object to the objects array
 		end
@@ -65,6 +65,9 @@ class GoogleDriveYAMLParser
 
 		#Actually write the file
 		begin
+			unless File.directory?(directory)
+				Dir.mkdir directory
+			end
 			File.open(directory+'/'+filename.downcase+'.yml', 'wb') {|f|
 				f.write(to_write.to_yaml)
 			}
@@ -82,7 +85,6 @@ def update_page(type, sheet, param)
 	key = SITE_CONFIG['google_info'][type]['key']
 	object_type=SITE_CONFIG['google_info'][type]["object"]
 
-	
 	puts "Going to Google Drive to Update: "
 	puts "\tType: #{type}"
 	puts "\tObject Type: #{object_type}"
