@@ -47,9 +47,9 @@ class StaticBliss
 		@manager = BucketManager.new(@credentials['s3_id'], @credentials['s3_secret'])
     	@manager.connect_to_bucket(@credentials['production_bucket'])
 
-    	`jekyll build --destination _to_upload`
+    	puts `jekyll build`
   	
-  		@manager.write_directory('_to_upload')
+  		@manager.write_directory('_site')
 	end
 
 

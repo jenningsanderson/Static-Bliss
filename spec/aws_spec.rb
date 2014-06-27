@@ -1,7 +1,10 @@
 require "spec_helper"
+require_relative "../lib/aws/bucket_manager"
 
 describe BucketManager do
+  
   before :all do
+    #Load the credentials early on.
     @credentials = YAML::load(File.open('spec/_secret_config.yml'))
     @config = YAML::load(File.open('spec/_config.yml'))
   end
