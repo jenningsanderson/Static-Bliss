@@ -74,8 +74,8 @@ class GoogleDriveYAMLParser
 			puts "file: '#{directory}/#{filename.downcase}.yml' written sucessfully" 
 		rescue => error
 			puts "Failed to write YAML file:"
-			puts error
-			puts error.trace
+			puts error.inspect
+			puts error.backtrace
 		end
 		
 		return to_write
