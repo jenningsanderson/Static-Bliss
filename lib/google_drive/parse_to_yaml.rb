@@ -8,13 +8,27 @@ class GoogleDriveYAMLParser
 
 	attr_accessor :google_drive_data
 
-	def initialize(username=nil, password=nil)
+	def initialize(username=nil, password=nil, site_config)
 		@session = GoogleDrive.login(username,password)
+		@site_config = site_config
 	end
 
 	def read_sheet(key, sheet, object_type, parameters) #That is, name of workbook and then sheet title
 
 		ws = @session.spreadsheet_by_key(key).worksheet_by_title(sheet)
+
+		#Load the previous value, if it exists
+
+		begin
+			puts "Attempting to load previous data file for #{object_type} of type #{sheet}"
+			prev_file = YAML::load(File.open("#{@site_config['data_directory']}/#{sheet.downcase}.yml")) || []
+			puts "Successfully loaded previous data file"
+		rescue
+			puts "No previous data file for #{object_type}, no problem, just make sure all google data exists"
+			prev_file = []	
+		end
+
+		#print prev_file
 
 		objects = []
 		
@@ -43,9 +57,13 @@ class GoogleDriveYAMLParser
 				end
 			end
 
-			unless parameters.empty?
-				this_object.validate(parameters)
+			unless prev_file.empty?
+				previous_data = prev_file[prev_file.index {|h| h['name'] == this_object.name }]
+			else
+				previous_data = []
 			end
+			
+			this_object.validate(parameters, previous_data)
 
 			objects << this_object	#Add the object to the objects array
 		end
@@ -81,18 +99,3 @@ class GoogleDriveYAMLParser
 		return to_write
 	end
 end #End YAMLAuthor
-
-def update_page(type, sheet, param)
-	key = SITE_CONFIG['google_info'][type]['key']
-	object_type=SITE_CONFIG['google_info'][type]["object"]
-
-	puts "Going to Google Drive to Update: "
-	puts "\tType: #{type}"
-	puts "\tObject Type: #{object_type}"
-	puts "\tSheet: #{sheet}"
-	puts "\tKey: #{key}"
-
-	objects = parse_spreadsheet(object_type,key,sheet, param)
-	write_to_yaml(objects, SITE_CONFIG['data_directory'], sheet)
-	puts "==================================================================="
-end

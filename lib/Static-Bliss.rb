@@ -61,7 +61,7 @@ class StaticBliss
 		require_relative 'google_drive/object_types'
 		require_relative 'google_drive/parse_to_yaml'
 
-		@connection = GoogleDriveYAMLParser.new(@credentials['google_username'], @credentials['google_password'])
+		@connection = GoogleDriveYAMLParser.new(@credentials['google_username'], @credentials['google_password'], @site_config)
 
 		sheet = args.shift
 		types  = [args.shift]
@@ -85,9 +85,10 @@ class StaticBliss
 					puts "========================================================"
 				end
 			
-			rescue
-				puts $!
+			rescue => error
+				puts error.inspect
 				puts "Error, that type of object doesn't exist for this site"
+				puts error.backtrace
 			end
 		else
 			puts "Doing all the updates"

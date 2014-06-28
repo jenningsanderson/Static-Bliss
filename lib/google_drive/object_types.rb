@@ -83,11 +83,24 @@ class Person
 		puts "Name: #{@name}"
 	end
 
-	def validate(param)
-		if @gscholar_link and param[0]=='gscholar'
-			print "Scraping Google Scholar..."
-			scrape_google_scholar(@gscholar_link)
-			print "done\n"
+	def validate(param, previous_data)
+		if @gscholar_link
+			if param[0]=='gscholar'
+				print "Scraping Google Scholar..."
+				scrape_google_scholar(@gscholar_link)
+				print "done\n"
+			elsif not previous_data.empty?
+				puts "User has google scholar credentials, using last scraped instance, consider adding 'gscholar' argument to update from google"
+				merge_previous_data(previous_data)
+			end
+		end
+	end
+
+	def merge_previous_data(previous_data)
+		previous_data.each do |key, value|
+			if (instance_eval "@#{key}").nil?
+				instance_eval "@#{key} = value"
+			end
 		end
 	end
 
@@ -148,13 +161,5 @@ class Person
 	def get_url(doc_html)
 		doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-homepage-read')]//a/@href")[0].to_s
 	end
-
-	# local_variables.each do |var|
-	# 	unless var.to_s =~ /(_html$|_url$)/i
-	# 		unless eval(var.to_s).empty?
-	# 			instance_variable_set("@#{var}", eval(var.to_s))
-	# 		end
-	# 	end
-	# end
 
 end
