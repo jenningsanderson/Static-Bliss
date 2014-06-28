@@ -75,6 +75,7 @@ class GoogleDriveYAMLParser
 		rescue => error
 			puts "Failed to write YAML file:"
 			puts error
+			puts error.trace
 		end
 		
 		return to_write
