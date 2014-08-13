@@ -57,10 +57,12 @@ class GoogleDriveYAMLParser
 				end
 			end
 
+			previous_data = []
+
 			unless prev_file.empty?
-				previous_data = prev_file[prev_file.index {|h| h['name'] == this_object.name }]
-			else
-				previous_data = []
+				if prev_file.collect{|item| item['name']}.include? this_object.name
+					previous_data = prev_file[prev_file.index {|h| h['name'] == this_object.name }]
+				end
 			end
 			
 			this_object.validate(parameters, previous_data)

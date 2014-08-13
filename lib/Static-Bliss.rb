@@ -55,7 +55,7 @@ class StaticBliss
 
 
 	#This workhorse function takes a variety of arguments and allows for 
-	def update(*args)
+	def update( *args )
 		args.flatten!
 		
 		require_relative 'google_drive/object_types'
@@ -96,6 +96,27 @@ class StaticBliss
 		end
 	end
 
+	def flickr(*args)
+		require_relative 'flickr/flickr_connect'
+		#Should be able to choose the set that you want here...
+
+		flickr_sets = @site_config['flickr']
+		data_dir = @site_config['data_directory']
+
+
+		flickr_sets.keys.each do |flickr_set|
+			puts "\tProcessing #{flickr_set}"
+			config = {
+				:api_key => @credentials['flickr_api_key'],
+				:set => flickr_sets[flickr_set]['set']
+			}
+
+			flickr_manager = FlickrConnect.new(config)
+			flickr_manager.get_photos
+			flickr_manager.write_yaml(data_dir, flickr_set)
+		end
+	end
+
 	def help(*args)
 		puts "Welcome to Static-Bliss, a gem built to make updating your jekyll site very simple."
 		
@@ -104,6 +125,13 @@ class StaticBliss
 			
 			if @credentials['production_bucket']
 				puts "\tbliss publish"
+			end
+
+			if @credentials['flickr_api_key']
+				puts "\tbliss flickr"
+				@site_config['flickr'].keys.each do |set|
+					puts "\tbliss flickr #{set}"
+				end
 			end
 			
 			@site_config['google_info'].each do |object, vals|

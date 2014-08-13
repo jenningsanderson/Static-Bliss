@@ -18,6 +18,10 @@ google_info :
     object : Publication
     types  : ['Publications']
 
+flickr :
+  hcc_photos:
+    set: "72157646414725101"
+
 data_directory : './_data'
 
 credentials : 'spec/_secret_config.yml'
