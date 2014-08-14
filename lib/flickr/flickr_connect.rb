@@ -45,17 +45,15 @@ class FlickrConnect
 	end
 
 	def yaml_photos
-		@photos_sorted_by_tag = []
+		@photos_sorted_by_tag = {}
 
 		@photos.collect{|pic| pic.tags}.flatten.uniq.each do |tag|
 			puts "Searching for #{tag}"
-			@photos_sorted_by_tag << {
-				tag =>
+			@photos_sorted_by_tag[tag] = 
 					@photos.select{|pic| pic.tags.include? tag}
-				} 
 		end
 
-		puts @photos_sorted_by_tag
+		#puts @photos_sorted_by_tag
 		
 		@photos_sorted_by_tag.to_yaml
 	end

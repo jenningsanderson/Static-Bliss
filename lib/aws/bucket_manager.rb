@@ -22,7 +22,7 @@ class BucketManager
     else
       base_name = file.gsub(@upload_dir+'/','')
     end
-    @bucket.objects[base_name].write(:file => file)
+    puts @bucket.objects[base_name].write(:file => file)
   end
 
   def write_directory(dir_path)

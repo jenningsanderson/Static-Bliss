@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = "Static-Bliss"
-  s.version           = "0.0.6"
+  s.version           = "0.1.1"
   s.platform          = Gem::Platform::RUBY
   s.authors           = ["Jennings Anderson"]
   s.email             = ["jennings.anderson@colorado.edu"]
