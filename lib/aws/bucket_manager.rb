@@ -22,7 +22,7 @@ class BucketManager
     else
       base_name = file.gsub(@upload_dir+'/','')
     end
-    puts @bucket.objects[base_name].write(:file => file)
+    @bucket.objects[base_name].write(:file => file)
   end
 
   def write_directory(dir_path)
@@ -30,8 +30,27 @@ class BucketManager
 
     files = Dir.glob(dir_path+"/**/*").reject { |file_path| File.directory? file_path }
 
-    files.each do |file|
+    count = files.count.to_f
+
+    files.each_with_index do |file, index|
       write_file(file)
+
+      completed_percent = (index.to_f / count)
+      completed_int = (completed_percent*30).round
+
+      print "\r"
+
+      completed_int.times do 
+        print "*"
+      end
+      
+      (30-completed_int).times do 
+        print "."
+      end
+
+      print " [#{completed_percent*100}%] "
+
+      $stdout.flush
     end
   end
 
