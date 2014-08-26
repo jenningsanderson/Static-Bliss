@@ -183,7 +183,9 @@ class Person
 
 	def get_url(doc_html)
 		begin
-			doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-homepage-read')]//a/@href")[0].to_s
+			items = doc_html.xpath("//*[@class='gsc_prf_il']")
+			url = items[2]
+			return url.children[1].attributes["href"]
 		rescue => e
 			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
 			puts $!
