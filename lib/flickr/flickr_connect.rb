@@ -33,12 +33,12 @@ class FlickrConnect
 	#Thomas Mango's code:
 	def get_photos
 		JSON.parse(json_response)['photoset']['photo'].each do |item|
-			@photos << FlickrPhoto.new(item['title'], item['id'], item['secret'], item['server'], item['farm'], item['tags'], item['description'], @config['thumnail_size'])
+			@photos << FlickrPhoto.new(item['title'], item['id'], item['secret'], item['server'], item['farm'], item['tags'], item['description'], @config['thumnail_size'], item['url_o'])
       	end
     end
 
 	def json_response
-		uri  = URI.parse("https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&photoset_id=#{@set}&api_key=#{@config[:api_key]}&format=json&nojsoncallback=1&extras=tags,description")
+		uri  = URI.parse("https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&photoset_id=#{@set}&api_key=#{@config[:api_key]}&format=json&nojsoncallback=1&extras=tags,description,url_o")
 		http = Net::HTTP.new(uri.host, uri.port)
 		http.use_ssl = true
 		return http.request(Net::HTTP::Get.new(uri.request_uri)).body
@@ -80,12 +80,13 @@ end
 class FlickrPhoto
 	attr_reader :title, :tags, :link, :description
 
-	def initialize(title, id, secret, server, farm, tags, description, thumbnail_size)
+	def initialize(title, id, secret, server, farm, tags, description, thumbnail_size, original_url)
 		@title          = title
 		@url            = "http://farm#{farm}.staticflickr.com/#{server}/#{id}_#{secret}.jpg"
 		@thumbnail_url  = url.gsub(/\.jpg/i, "_#{thumbnail_size}.jpg")
 		@tags = tags.split
 		@link = "http://www.google.com"
+		@o_url = original_url
 	
 		process_description(description['_content'])
 	end

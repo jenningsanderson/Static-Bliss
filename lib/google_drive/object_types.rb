@@ -13,7 +13,7 @@ class Course
 		puts "Name: #{@name}"
 	end
 
-	def validate(params)
+	def validate(params, previous_data)
 		return nil
 	end
 end
@@ -28,7 +28,7 @@ class Publication
 	end
 
 
-	def validate(params)
+	def validate(params, previous_data)
 		get_categories
 	end
 
@@ -47,7 +47,7 @@ class Press
 		puts "Article: #{name[0..45]}..."
 	end
 
-	def validate(params)
+	def validate(params, previous_data)
 		return nil
 	end
 
@@ -61,7 +61,7 @@ class Project
 		puts "Project Name: #{@name}"
 	end
 
-	def validate(params)
+	def validate(params, previous_data)
 		return nil
 	end
 end
@@ -127,39 +127,67 @@ class Person
 	end
 
 	def get_photo(doc_html)
-		photo_url = doc_html.xpath("//div[contains(@class,'g-unit')]//div[contains(@class,'cit-user-info')]//img/@src")[0].to_s
+		begin
+			photo_url = doc_html.xpath("//*[@id='gsc_prf_pup']//@src")[0].to_s
 
-		if photo_url =~ /^\//i
-			photo_url.insert(0,'http://scholar.google.com')
+			if photo_url =~ /^\//i
+				photo_url.insert(0,'http://scholar.google.com')
+			end
+
+			open(photo_url) {|f|
+	   			File.open("#{@@profile_photo_path}/#{@name.gsub(/\s+/,'_')}.jpg","wb") do |pic|
+	    			pic.puts f.read
+	   			end
+			}
+
+			return "#{@@profile_photo_path}/#{@name.gsub(/\s+/,'_')}.jpg"[1..-1]
+		
+		rescue => e
+			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
+			puts $!
 		end
-
-		open(photo_url) {|f|
-   			File.open("#{@@profile_photo_path}/#{@name.gsub(/\s+/,'_')}.jpg","wb") do |pic|
-    			pic.puts f.read
-   			end
-		}
-
-		return "#{@@profile_photo_path}/#{@name.gsub(/\s+/,'_')}.jpg"[1..-1]
 	end
 
 	def get_affiliation(doc_html)
+		begin
+			# return doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-affiliation-display')]/text()")[0].to_s
+			items = doc_html.xpath("//*[@class='gsc_prf_il']")
+			affiliation = items[0]
 
-		doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-affiliation-display')]/text()")[0].to_s
+			return affiliation.text
+		rescue => e
+			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
+			puts $!
+		end
 	end
 
 	def get_interests(doc_html)
-		interests_html = doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-int-read')]//a/text()")
+		begin 
 
-		interests = [ ]
-		interests_html.each do |interest|
-			interests << interest.to_s
+			items = doc_html.xpath("//*[@class='gsc_prf_il']")
+			interests = items[1]
+
+			interests_array = []
+
+			interests.children.each do |child|
+				unless child.text =~ /\s*,\s*/i
+					interests_array << child.text
+				end
+			end
+			return interests_array.join(', ')
+		rescue => e
+			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
+			puts $!
 		end
-
-		return interests.join(', ')
 	end
 
 	def get_url(doc_html)
-		doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-homepage-read')]//a/@href")[0].to_s
+		begin
+			doc_html.xpath("//div[contains(@class,'g-unit')]//span[contains(@id,'cit-homepage-read')]//a/@href")[0].to_s
+		rescue => e
+			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
+			puts $!
+		end
 	end
 
 end
