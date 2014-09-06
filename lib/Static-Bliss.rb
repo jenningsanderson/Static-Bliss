@@ -53,7 +53,7 @@ class StaticBliss
 	end
 
 	def push_to_bucket( *args )
-		if args[0].nil?
+		if args.empty?
 			puts "Error: Need name of directory"
 		else
 			puts "Copying #{args[0]} to #{credentials['push_to_bucket']}"
