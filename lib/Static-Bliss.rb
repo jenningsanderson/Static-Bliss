@@ -56,15 +56,15 @@ class StaticBliss
 		puts "Preparing to Push the directory to S3"
 		args.flatten!
 		puts args
-		if args.empty?
-			puts "Error: Need name of directory"
-		else
+		unless args.empty?
 			puts "Copying #{args[0]} to #{credentials['push_to_bucket']}"
 
 			# @manager = BucketManager.new(@credentials['s3_id'], @credentials['s3_secret'])
 	  #   	@manager.connect_to_bucket(@credentials['push_to_bucket'])
 
 	  #   	@manager.write_directory(args[0])
+		else
+			puts "Error: Need name of directory"
 	    end
     end
 
