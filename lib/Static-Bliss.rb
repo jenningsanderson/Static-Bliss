@@ -52,7 +52,17 @@ class StaticBliss
   		@manager.write_directory('_site')
 	end
 
+	def push_to_bucket( *args )
+		if args[0].nil?
+			puts "Error: Need name of directory"
+		else
+			puts "Copying #{args[0]} to #{credentials['push_to_bucket']}"
 
+		@manager = BucketManager.new(@credentials['s3_id'], @credentials['s3_secret'])
+    	@manager.connect_to_bucket(@credentials['push_to_bucket'])
+
+    	@manager.write_directory(args[0])
+    end
 
 	#This workhorse function takes a variety of arguments and allows for 
 	def update( *args )
@@ -125,6 +135,10 @@ class StaticBliss
 			
 			if @credentials['production_bucket']
 				puts "\tbliss publish"
+			end
+
+			if @credentials['push_to_bucket']
+				puts "\tbliss push"
 			end
 
 			if @credentials['flickr_api_key']
