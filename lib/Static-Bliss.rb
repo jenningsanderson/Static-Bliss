@@ -52,9 +52,10 @@ class StaticBliss
   		@manager.write_directory('_site')
 	end
 
-	def push_to_bucket( *args )
+	def push( *args )
 		if args.empty?
 			puts "Error: Need name of directory"
+			return
 		else
 			puts "Copying #{args[0]} to #{credentials['push_to_bucket']}"
 
