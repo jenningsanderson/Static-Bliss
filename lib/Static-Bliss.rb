@@ -56,6 +56,7 @@ class StaticBliss
 		puts "Preparing to Push the directory to S3"
 		args.flatten!
 		puts args
+		
 		unless args.empty?
 			puts "Copying #{args[0]} to #{credentials['push_to_bucket']}"
 
