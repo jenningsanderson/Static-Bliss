@@ -55,9 +55,9 @@ class StaticBliss
 	def push( *args )
 		puts "Preparing to Push the directory to S3"
 		args.flatten!
+		puts args
 		if args.empty?
 			puts "Error: Need name of directory"
-			return
 		else
 			puts "Copying #{args[0]} to #{credentials['push_to_bucket']}"
 
