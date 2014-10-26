@@ -13,7 +13,15 @@ class BucketManager
   end
 
   def connect_to_bucket(bucket)
-    @bucket = @s3.buckets[bucket]
+    begin
+      @bucket = @s3.buckets[bucket]
+      puts "Successfully connected to #{bucket}"
+    rescue => e
+      puts "Error, cannot connect to s3 bucket"
+      puts $!
+      puts e.backtrace
+      exit(1)
+    end
   end
 
   def write_file(file)
@@ -22,7 +30,12 @@ class BucketManager
     else
       base_name = file.gsub(@upload_dir+'/','')
     end
-    @bucket.objects[base_name].write(:file => file)
+    begin
+      @bucket.objects[base_name].write(:file => file)
+    rescue => e
+      puts $!
+      puts e.backtrace
+    end
   end
 
   def write_directory(dir_path)
