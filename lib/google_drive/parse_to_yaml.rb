@@ -52,7 +52,7 @@ class GoogleDriveYAMLParser
 			end
 			#Now add keys as instance variables to the person... Cool!
 			object.each do |k,v|
-				unless v==""
+				unless v==''
 					this_object.instance_variable_set("@#{k}", v)
 				end
 			end

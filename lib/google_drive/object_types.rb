@@ -110,19 +110,19 @@ class Person
 		doc_html = Nokogiri::HTML(open(url))
 
 		unless @picture
-			@picture = get_photo(doc_html)
+			get_photo(doc_html)
 		end
 
 		unless @url
-			@url = get_url(doc_html)
+			get_url(doc_html)
 		end
 
 		unless @interests
-			@interests = get_interests(doc_html)
+			get_interests(doc_html)
 		end
 
 		unless @affiliation
-			@affiliation = get_affiliation(doc_html)
+			get_affiliation(doc_html)
 		end
 	end
 
@@ -140,7 +140,7 @@ class Person
 	   			end
 			}
 
-			return "#{@@profile_photo_path}/#{@name.gsub(/\s+/,'_')}.jpg"[1..-1]
+			@picture = "#{@@profile_photo_path}/#{@name.gsub(/\s+/,'_')}.jpg"[1..-1]
 		
 		rescue => e
 			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
@@ -174,7 +174,9 @@ class Person
 					interests_array << child.text
 				end
 			end
-			return interests_array.join(', ')
+			unless interests_array.empty?
+				@interests = interests_array.join(', ')
+			end
 		rescue => e
 			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
 			puts $!
@@ -186,9 +188,7 @@ class Person
 			items = doc_html.xpath("//*[@class='gsc_prf_il']")
 			url = nil || items[2]
 			unless url.children[1].nil?
-				return url.children[1].attributes["href"].to_s
-			else
-				return ""
+				@url = url.children[1].attributes["href"].to_s
 			end
 		rescue => e
 			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
