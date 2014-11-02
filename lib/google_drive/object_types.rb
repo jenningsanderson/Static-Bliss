@@ -154,7 +154,7 @@ class Person
 			items = doc_html.xpath("//*[@class='gsc_prf_il']")
 			affiliation = items[0]
 
-			return affiliation.text
+			@affiliation = affiliation.text
 		rescue => e
 			puts "Oh no, an error occured, Google Scholar may have changed their page layout"
 			puts $!
