@@ -95,8 +95,9 @@ class FlickrPhoto
 		begin
 			desc_tags = desc.scan(/\[(.*)\]/).flatten[0]
 			@tags +=  desc_tags.split(',').collect{|x| x.strip}
-		rescue
+		rescue => e
 			puts "An error occured parsing the tags in the description"
+			puts e.backtrace
 		end
 		@description = desc[0..desc.index('[')-1].strip
 	end
