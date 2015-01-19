@@ -2,6 +2,8 @@ require 'yaml'
 
 class StaticBliss
 
+	attr_reader :site_config, :credentials
+
 	def initialize(command, args)
 		puts "Command: #{command}"
 		puts "args: #{args}"
@@ -44,8 +46,8 @@ class StaticBliss
 		
 		#Require the bucket manager and make the connection, then publish
 		require_relative 'aws/bucket_manager'
-		@manager = BucketManager.new(@credentials['s3_id'], @credentials['s3_secret'])
-    	@manager.connect_to_bucket(@credentials['production_bucket'])
+		@manager = BucketManager.new(credentials['s3_id'], credentials['s3_secret'])
+    	@manager.connect_to_bucket(credentials['production_bucket'])
 
     	puts `jekyll build`
   	
@@ -61,8 +63,8 @@ class StaticBliss
 			puts "Copying #{args[0]} to #{@credentials['push_to_bucket']}"
 
 			require_relative 'aws/bucket_manager'
-			@manager = BucketManager.new(@credentials['s3_id'], @credentials['s3_secret'])
-	    	@manager.connect_to_bucket(@credentials['push_to_bucket'])
+			@manager = BucketManager.new(credentials['s3_id'], credentials['s3_secret'])
+	    	@manager.connect_to_bucket(credentials['push_to_bucket'])
 	    	@manager.write_directory(args[0])
 		else
 			puts "Error: Need name of directory"
@@ -76,7 +78,7 @@ class StaticBliss
 		require_relative 'google_drive/object_types'
 		require_relative 'google_drive/parse_to_yaml'
 
-		@connection = GoogleDriveYAMLParser.new(@credentials['google_username'], @credentials['google_password'], @site_config)
+		@connection = GoogleDriveYAMLParser.new(site_config, credentials['google_token_path'])
 
 		sheet = args.shift
 		types  = [args.shift]
@@ -88,15 +90,15 @@ class StaticBliss
 		
 		unless sheet == 'all'
 			begin
-				key 	= @site_config['google_info'][sheet]['key']
-				object 	= @site_config['google_info'][sheet]['object']
+				key 	= site_config['google_info'][sheet]['key']
+				object 	= site_config['google_info'][sheet]['object']
 
 				types.each do |this_type|
 					#Hit google
 					puts "\nHitting Google for #{sheet} of type #{this_type}"
 					data_to_write = @connection.read_sheet key, this_type.capitalize, object, parameters
 					#Write data
-					@connection.write_to_yaml data_to_write, @site_config['data_directory'], this_type.capitalize
+					@connection.write_to_yaml data_to_write, site_config['data_directory'], this_type.capitalize
 					puts "========================================================"
 				end
 			
@@ -115,8 +117,8 @@ class StaticBliss
 		require_relative 'flickr/flickr_connect'
 		#Should be able to choose the set that you want here...
 
-		flickr_sets = @site_config['flickr']
-		data_dir = @site_config['data_directory']
+		flickr_sets = site_config['flickr']
+		data_dir = site_config['data_directory']
 
 
 		flickr_sets.keys.each do |flickr_set|
@@ -138,22 +140,22 @@ class StaticBliss
 		if read_config
 			puts "\nThe following functions are available based on your configuration:"
 			
-			if @credentials['production_bucket']
+			if credentials['production_bucket']
 				puts "\tbliss publish"
 			end
 
-			if @credentials['push_to_bucket']
+			if credentials['push_to_bucket']
 				puts "\tbliss push"
 			end
 
-			if @credentials['flickr_api_key']
+			if credentials['flickr_api_key']
 				puts "\tbliss flickr"
 				@site_config['flickr'].keys.each do |set|
 					puts "\tbliss flickr #{set}"
 				end
 			end
 			
-			@site_config['google_info'].each do |object, vals|
+			site_config['google_info'].each do |object, vals|
 				if vals['types'].count > 1
 					puts "\tbliss update #{object} [all]"
 					vals['types'].each do |type|

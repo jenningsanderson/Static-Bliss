@@ -6,16 +6,18 @@ require_relative 'object_types'
 
 class GoogleDriveYAMLParser
 
-	attr_accessor :google_drive_data
+	attr_accessor :google_drive_data, :session
 
 	def initialize(username=nil, password=nil, site_config)
-		@session = GoogleDrive.login(username,password)
+		@session = GoogleDrive.saved_session()
+
+		# @session = GoogleDrive.login(username,password)
 		@site_config = site_config
 	end
 
 	def read_sheet(key, sheet, object_type, parameters) #That is, name of workbook and then sheet title
 
-		ws = @session.spreadsheet_by_key(key).worksheet_by_title(sheet)
+		ws = session.spreadsheet_by_key(key).worksheet_by_title(sheet)
 
 		#Load the previous value, if it exists
 
