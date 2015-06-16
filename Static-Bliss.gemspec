@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = "Static-Bliss"
-  s.version           = "1.0.0"
+  s.version           = "1.1.0"
   s.platform          = Gem::Platform::RUBY
   s.authors           = ["Jennings Anderson"]
   s.email             = ["jennings.anderson@colorado.edu"]
@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "s3"
   s.add_runtime_dependency "aws-sdk" #This is an important dependency to allow the geo calculations
   s.add_runtime_dependency "google_drive"
+  s.add_runtime_dependency "google/api_client"
   # It will need all sorts of dependencies such as rgeo, ruby/gems, etc...
 
   # If you have development dependencies, add them here
