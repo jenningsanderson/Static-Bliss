@@ -8,11 +8,7 @@ google_info :
     key    : 0Aiwzrc8lx93KdDJrQllra3VmQkx1OTNlclNCY0hIWFE
     object : Person
     types  : ['Current', 'Alumni']
-
-  projects :
-    key    : 0AihuFDqjCvbedDMzS0FRc1hTT3JVY2lRT2pfekszY3c
-    object : Project
-    types  : ['Projects']
+    
   publications :
     key    : 0Aiwzrc8lx93KdFhudDZDZzdRTkVHQWtpUVNFd01xckE
     object : Publication

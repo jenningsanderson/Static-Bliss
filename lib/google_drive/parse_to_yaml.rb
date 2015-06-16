@@ -8,11 +8,9 @@ class GoogleDriveYAMLParser
 
 	attr_accessor :google_drive_data, :session
 
-	def initialize(username=nil, password=nil, site_config)
-		@session = GoogleDrive.saved_session()
-
-		# @session = GoogleDrive.login(username,password)
-		@site_config = site_config
+	def initialize(args)
+		@session = GoogleDrive.login_with_oauth(args[:token])
+		@site_config = args[:site_config]
 	end
 
 	def read_sheet(key, sheet, object_type, parameters) #That is, name of workbook and then sheet title

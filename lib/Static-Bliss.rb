@@ -38,7 +38,6 @@ class StaticBliss
 	end
 
 
-
 	#This function uses the secret Amazon s3 credentials to publish the site to an s3 Bucket
 	#defined in the config
 	def publish( *args )
@@ -77,8 +76,13 @@ class StaticBliss
 		
 		require_relative 'google_drive/object_types'
 		require_relative 'google_drive/parse_to_yaml'
+		require_relative 'google_drive/login'
 
-		@connection = GoogleDriveYAMLParser.new(site_config, credentials['google_token_path'])
+		drive = GoogleDriveHandler.new(p12: credentials['p12'])
+
+		@connection = GoogleDriveYAMLParser.new(
+			token: drive.token
+			)
 
 		sheet = args.shift
 		types  = [args.shift]
