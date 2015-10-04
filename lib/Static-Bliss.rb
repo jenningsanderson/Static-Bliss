@@ -1,22 +1,28 @@
 require 'yaml'
+require 'net/http'
+require 'json'
+
+require_relative 'google_drive/models'
 
 class StaticBliss
 
-	attr_reader :site_config, :credentials
+	attr_reader :site_config, :credentials, :data_dir
 
-	def initialize(command, args)
-		puts "Command: #{command}"
-		puts "args: #{args}"
+	def initialize(args={})
 
-		puts "Reading the _config.yml file"
+		puts args.inspect
+		
+		puts "Initializing Static Bliss with the _config.yml file"
 		read_config
 		puts ""
 
-		begin
-			instance_eval "#{command} (#{args})"
-		rescue
-			"oops, failed"
-		end
+		@data_dir = args["data_directory"] || './_data'
+
+		# begin
+		# 	instance_eval "#{command} (#{args})"
+		# rescue
+		# 	"oops, failed"
+		# end
 	end
 
 	def read_config
@@ -24,16 +30,88 @@ class StaticBliss
 			puts "Loading site_config from _config.yml"
 			@site_config = YAML::load(File.open('_config.yml'))
 		else
-			puts "Entering test environment, _config.yml does not exist"
+			puts "_config.yml does not exist, Entering test environment (spec/_config.yml)"
 			@site_config = YAML::load(File.open('spec/_config.yml'))
 		end
 
-		if File.exists?(@site_config['credentials'])
-			puts "Loading credentials from site_config location"
-			@credentials = YAML::load(File.open(@site_config['credentials']))
+		# if File.exists?(@site_config['credentials'])
+		# 	puts "Loading credentials from site_config location"
+		# 	@credentials = YAML::load(File.open(@site_config['credentials']))
+		# else
+		# 	puts "You do not have a proper credentials file defined in _config.yml"
+		# 	return false
+		# end
+	end
+
+	def update_new(args={})
+
+		#Set the sheet, default to people
+		sheet    = args[:page] || 'people'
+
+		#If set with a tab, then use that one, otherwise, default to all
+		if args[:tab]
+			tabs = [(site_config["sheets"][sheet]["types"].index args[:tab])+1]
 		else
-			puts "You do not have a proper credentials file defined in _config.yml"
-			return false
+			tabs = (1..site_config["sheets"][sheet]["types"].length).to_a
+		end
+
+		#Now hit the web...
+		key = site_config["sheets"][sheet]["key"]
+		obj = site_config["sheets"][sheet]["object"]
+
+		tabs.each do |tab|
+			tab_name = site_config["sheets"][sheet]["types"][tab-1]
+			puts "========== Hitting Google API for: #{args[:page]}, tab: #{tab}: #{tab_name}"
+
+			begin
+				url = URI("https://spreadsheets.google.com/feeds/list/#{key}/#{tab}/public/values?alt=json")
+				data = JSON.parse(Net::HTTP.get(url))
+			rescue => e
+				puts "\n\nThe HTTP Request Failed:"
+				puts "\tEnsure the document is published"
+				puts "\tEnsure the headers are on row 1\n\n"
+			end
+			previous_data = nil
+			begin
+				puts "Loading previous file for comparison"
+				previous_data = YAML.load( File.read("./_data/" + site_config["sheets"][sheet]["types"][tab-1] + ".yml") )
+			rescue => e
+				puts "WARNING: No previous data found for #{tab_name}"
+			end
+
+			results = []
+
+			begin
+				data["feed"]["entry"].each do |entry|
+					this_data = {
+					    filename: tab_name,
+						data: entry
+					}
+
+					unless previous_data.nil?
+						this_data[:previous_data] = previous_data
+					end
+					
+					this_obj = eval("#{obj}.new(#{this_data})")
+					
+					this_obj.validate
+
+					results << this_obj.format_as_yaml
+				end
+			rescue => e
+				puts "Something in parsing failed"
+				puts e.backtrace
+				puts e
+			end
+
+			puts results
+
+			#Now results the file to YAML
+			write_yaml({
+				directory: data_dir,
+				filename: tab_name, 
+				data: results
+			})
 		end
 	end
 
@@ -78,7 +156,10 @@ class StaticBliss
 		require_relative 'google_drive/parse_to_yaml'
 		require_relative 'google_drive/login'
 
-		drive = GoogleDriveHandler.new(p12: credentials['p12'])
+		drive = GoogleDriveHandler.new(
+			p12: credentials['p12'], 
+			issuer: credentials['service_account']
+			)
 
 		@connection = GoogleDriveYAMLParser.new(
 			token: drive.token
@@ -124,6 +205,7 @@ class StaticBliss
 		flickr_sets = site_config['flickr']
 		data_dir = site_config['data_directory']
 
+		flickr_output = {}
 
 		flickr_sets.keys.each do |flickr_set|
 			puts "\tProcessing #{flickr_set}"
@@ -134,43 +216,61 @@ class StaticBliss
 
 			flickr_manager = FlickrConnect.new(config)
 			flickr_manager.get_photos
-			flickr_manager.write_yaml(data_dir, flickr_set)
+			flickr_output[flickr_set] = flickr_manager.photos
 		end
+		puts flickr_output
+		write_yaml(data_dir, 'flickr_urls', flickr_output)
 	end
 
-	def help(*args)
-		puts "Welcome to Static-Bliss, a gem built to make updating your jekyll site very simple."
+	def list_operations
+		puts "\nThe following functions are available based on your configuration:"
 		
-		if read_config
-			puts "\nThe following functions are available based on your configuration:"
-			
-			if credentials['production_bucket']
-				puts "\tbliss publish"
-			end
+		# if credentials['production_bucket']
+		# 	puts "\tbliss publish"
+		# end
 
-			if credentials['push_to_bucket']
-				puts "\tbliss push"
-			end
+		# if credentials['push_to_bucket']
+		# 	puts "\tbliss push"
+		# end
 
-			if credentials['flickr_api_key']
-				puts "\tbliss flickr"
-				@site_config['flickr'].keys.each do |set|
-					puts "\tbliss flickr #{set}"
+		# if credentials['flickr_api_key']
+		# 	puts "\tbliss flickr"
+		# 	@site_config['flickr'].keys.each do |set|
+		# 		puts "\tbliss flickr #{set}"
+		# 	end
+		# end
+		
+		site_config['sheets'].each do |object, vals|
+			if vals['types'].count > 1
+				puts "\tbliss update #{object} [all]"
+				vals['types'].each do |type|
+					puts "\tbliss update #{object} #{type}"
 				end
+			else
+				puts "\tbliss update #{object}"
 			end
-			
-			site_config['google_info'].each do |object, vals|
-				if vals['types'].count > 1
-					puts "\tbliss update #{object} [all]"
-					vals['types'].each do |type|
-						puts "\tbliss update #{object} #{type}"
-					end
-				else
-					puts "\tbliss update #{object}"
+		end
+		puts "\tbliss update all"
+		puts "\nNote: Additional parameters for each of these functions may be available depending on your object classes"
+	end
+
+
+	def write_yaml(args)
+		directory = args[:directory]
+		filename  = args[:filename]
+		content   = args[:data]
+		begin
+			unless File.directory?(directory)
+					Dir.mkdir directory
 				end
-			end
-			puts "\tbliss update all"
-			puts "\nNote: Additional parameters for each of these functions may be available depending on your object classes"
+			File.open(directory+'/'+filename.downcase+'.yml', 'wb') {|f|
+				f.write(content.to_yaml)
+			}
+			puts "file: '#{directory}/#{filename.downcase}.yml' written sucessfully" 
+		rescue => error
+			puts "Failed to write YAML file:"
+			puts error.inspect
+			puts error.backtrace
 		end
 	end
 end

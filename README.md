@@ -10,10 +10,14 @@ Gem requirements (Depending on what access abilities you want)
 	s3
 	aws-sdk
 	google_drive
+	google-drive-api
 
 ###Directory Requirements
 A ````_data```` folder at the root of your site will hold the required
 
+
+###Authentication
+Accessing files with the Google Drive API requires oauth2.0 authentication, this gem is set to read from a p12 key, which can be easily generated 
 
 ###Configuration
 Modify your ````_config.yml```` file to include the following values:
@@ -22,9 +26,9 @@ Modify your ````_config.yml```` file to include the following values:
 
 Additionally, create another file called ````_secret_config.yml```` with the following contents:
 
-	google_username : "you@gmail.com"
-	google_password : "qwerty1"
-	
+	p12 : "Location to your p12 key"
+	service_account : "Your service account email with google dev"
+
 	s3_id : "S3 ID"
 	s3_secret : "S3 Secret"
 	production_bucket: "yourbucketnamehere"

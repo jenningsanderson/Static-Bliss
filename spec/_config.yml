@@ -1,23 +1,22 @@
-google_info :
+sheets :
   press :
     key    : 0Aiwzrc8lx93KdEpoYlZPa2tRU25FT1Fzb2s4Yi16UlE
     object : Press
-    types  : ['Press']
+    types  : ['press']
 
   people :
-    key    : 0Aiwzrc8lx93KdDJrQllra3VmQkx1OTNlclNCY0hIWFE
+    key    : 1w6uPTCA6V_6mD_02jB8WFJ5nVr6RPU_3kjfY9PQv_K0
     object : Person
-    types  : ['Current', 'Alumni']
+    types  : ['current', 'alumni']
     
   publications :
-    key    : 0Aiwzrc8lx93KdFhudDZDZzdRTkVHQWtpUVNFd01xckE
+    key    : 1VOnySkfTF8WQG3gnECUzy8oPvPRDTph-bOWzFX5nqQA
     object : Publication
-    types  : ['Publications']
+    types  : ['publications']
 
-flickr :
-  hcc_photos:
-    set: "72157646414725101"
+  courses :
+    key    : 1sKFE3vyP6lszBn8Xm86rNsS7XZKW5_jSvCW04XywBq4
+    object : Course
+    types  : ['undergraduate', 'graduate']
 
 data_directory : './_data'
-
-credentials : 'spec/_secret_config.yml'

@@ -15,16 +15,26 @@ class GoogleDriveYAMLParser
 
 	def read_sheet(key, sheet, object_type, parameters) #That is, name of workbook and then sheet title
 
+		puts 'getting here'
+		puts key, sheet
+
+		session.files.each do |file|
+ 			p file.title
+		end
+		
+		puts session.spreadsheet_by_key(key)
+
 		ws = session.spreadsheet_by_key(key).worksheet_by_title(sheet)
 
-		#Load the previous value, if it exists
 
+
+		#Load the previous value, if it exists
 		begin
 			puts "Attempting to load previous data file for #{object_type} of type #{sheet}"
 			prev_file = YAML::load(File.open("#{@site_config['data_directory']}/#{sheet.downcase}.yml")) || []
 			puts "Successfully loaded previous data file"
 		rescue
-			puts "No previous data file for #{object_type}, no problem, just make sure all google data exists"
+			puts "No previous data file for #{sheet.downcase}, no problem, just make sure all google data exists"
 			prev_file = []	
 		end
 
@@ -46,8 +56,10 @@ class GoogleDriveYAMLParser
 
 			#Evaluate the object type (Must actually exist!)
 			begin
+				puts object_type
 				this_object = eval(object_type).new(object['name'], sheet.capitalize)
-			rescue
+			rescue => e
+				puts e.backtrace
 				puts "Error! The object type #{object_type} may not exist"
 			end
 			#Now add keys as instance variables to the person... Cool!
@@ -78,7 +90,7 @@ class GoogleDriveYAMLParser
 		objects.each do |object|
 			this_object = {}
 			object.instance_variables.each do |k|
-				this_object[k.to_s.gsub('@','')] = object.instance_eval(k.to_s)
+				this_object[k.to_s.gsub('@','')] = k
 			end
 			to_write << this_object
 		end

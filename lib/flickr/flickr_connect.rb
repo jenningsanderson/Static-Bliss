@@ -44,35 +44,15 @@ class FlickrConnect
 		return http.request(Net::HTTP::Get.new(uri.request_uri)).body
 	end
 
-	def yaml_photos
+	def photos
 		@photos_sorted_by_tag = {}
 
 		@photos.collect{|pic| pic.tags}.flatten.uniq.each do |tag|
 			puts "Searching for #{tag}"
 			@photos_sorted_by_tag[tag] = 
-					@photos.select{|pic| pic.tags.include? tag}
+				@photos.select{|pic| pic.tags.include? tag}
 		end
-
-		#puts @photos_sorted_by_tag
-		
-		@photos_sorted_by_tag.to_yaml
-	end
-
-
-	def write_yaml(directory, filename)
-		begin
-			unless File.directory?(directory)
-					Dir.mkdir directory
-				end
-			File.open(directory+'/'+filename.downcase+'.yml', 'wb') {|f|
-				f.write(yaml_photos)
-			}
-			puts "file: '#{directory}/#{filename.downcase}.yml' written sucessfully" 
-		rescue => error
-			puts "Failed to write YAML file:"
-			puts error.inspect
-			puts error.backtrace
-		end
+		@photos_sorted_by_tag
 	end
 end
 

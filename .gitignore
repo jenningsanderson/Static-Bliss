@@ -2,3 +2,4 @@
 *.lock
 _secret*.*
 _data/
+assets/
