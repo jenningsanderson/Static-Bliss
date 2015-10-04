@@ -14,7 +14,6 @@ Gem::Specification.new do |s|
 
   # If you have runtime dependencies, add them h
   s.add_runtime_dependency "commander"
-  s.add_runtime_dependency "yaml"
 
   #only required if you're publishing to an s3 bucket
   # s.add_runtime_dependency "aws-sdk" #This is an important dependency to allow the geo calculations
