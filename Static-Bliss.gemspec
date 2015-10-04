@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = "Static-Bliss"
-  s.version           = "1.1.0"
+  s.version           = "1.2.0"
   s.platform          = Gem::Platform::RUBY
   s.authors           = ["Jennings Anderson"]
   s.email             = ["jennings.anderson@colorado.edu"]
@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = s.name
   s.license           = "MIT"
 
-  #s.required_rubygems_version = ">= 1.3.6"
+  #s.required_rubygems_version = ">d= 1.3.6"
 
   # If you have runtime dependencies, add them here
   # s.add_runtime_dependency "other", "~> 1.2"
