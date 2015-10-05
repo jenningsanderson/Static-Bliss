@@ -1,7 +1,7 @@
 Static-Bliss
 ============
 
-A gem to build YAML files from Google spreadsheets to assist in maintaining Static Jekyll Websites
+A gem to build YAML files from Google spreadsheets to assist in maintaining static [Jekyll](https://jekyllrb.com/) websites
 
 ###Requirements
 Gem requirements (Depending on what access abilities you want)
@@ -14,9 +14,18 @@ A ````_data```` folder at the root of your site will hold the generated data, th
 
 
 ###Configuration
-Modify your ````_config.yml```` file to include the following values:
+Modify your ````_config.yml```` file to include and entry like this:
 
-1. 'sheets'
+	sheets:
+		people :
+			key    : 1w6uPTCA6V_6mD_02jB8WFJ5nVr6RPU_3kjfY9PQv_K0
+			object : Person
+			types  : ['current', 'alumni']
+
+Where 
+	1. ```update people``` will then become the command, ```key``` is the spreadsheet key
+	2. ```object``` is the Ruby class from ```lib/google_drive/models.rb``` 
+	3. ```types``` is an array of the titles of the worksheets, making subcommands possible: ```update people alumni```.
 
 Additionally, create another file called ````_secret_config.yml```` with the following contents:
 
