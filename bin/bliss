@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
 require 'commander/import'
-require 'fileutils'
 
 require_relative '../lib/Static-Bliss'
 
@@ -14,18 +12,11 @@ command :update do |c|
   c.syntax = 'bliss update [file]'
   c.description = 'Run it'
   c.action do |args, options|
-
   	runtime = StaticBliss.new()
-  	
-  	#Check the update args
-
-
-  	#Ignore these
   	runtime.update_new( {
   			page: args[0], 
   			tab: args[1]
   		} )
-
   end
 end
 

@@ -2,7 +2,7 @@ sheets :
   press :
     key    : 0Aiwzrc8lx93KdEpoYlZPa2tRU25FT1Fzb2s4Yi16UlE
     object : Press
-    types  : ['press']
+    types  : ['press'] #These are just the names of the tabs
 
   people :
     key    : 1w6uPTCA6V_6mD_02jB8WFJ5nVr6RPU_3kjfY9PQv_K0
@@ -17,6 +17,6 @@ sheets :
   courses :
     key    : 1sKFE3vyP6lszBn8Xm86rNsS7XZKW5_jSvCW04XywBq4
     object : Course
-    types  : ['undergraduate', 'graduate']
+    types  : ['graduate','undergraduate']
 
 data_directory : './_data'

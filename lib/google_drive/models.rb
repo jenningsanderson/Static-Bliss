@@ -146,113 +146,37 @@ class Person < GoogleSheetToYaml
 	end
 end
 
-# class Pulbication < GoogleSheet
-# 	attr_accessor :type, :categories
+class Publication < GoogleSheetToYaml
+	attr_accessor :name, :authors, :year, :downloadlink, :title, :etc, :category, :abstract										
 
-# 	def initialize(args={})
+	def validate
+		puts "Validating: #{self.name}"
+	end
 
-# 	end
+	def get_categories
+		if @category
+			@category = @category.split(',').collect!{|cat| cat.strip }
+		end
+		print @category
+	end
+end
 
-# 	def get_categories
-# 		if @category
-# 			@category = @category.split(',').collect!{|cat| cat.strip }
-# 		end
-# 		print @category
-# 	end
-# end
+class Press < GoogleSheetToYaml
+	attr_accessor :name, :year
 
+	def validate
+		puts "Article: #{name[0..45]}..."
+	end
+end
 
+class Course < GoogleSheetToYaml
+	attr_accessor :name, :number, :url, :credits, :description																		
 
-#The course is currently implemented for the Human-Centered-Computing Site
-# class Course
-# 	attr_accessor :name, :type
-# 	def initialize(name, type)
-# 		@name = name
-# 		@type = type
-# 		puts "Name: #{@name}"
-# 	end
+	def validate
+		puts "#{number}: #{name}"
+	end
+end
 
-# 	def validate(params, previous_data)
-# 		return nil
-# 	end
-# end
+class LabGroup < GoogleSheetToYaml
 
-# #Publications: 
-# class Publication
-# 	attr_accessor :name, :type
-# 	def initialize(name, type)
-# 		@name = name
-# 		@type = type
-# 		puts "Publication: #{name}"
-# 	end
-
-# 	def validate(params, previous_data)
-# 		get_categories
-# 	end
-
-
-# end
-
-# class Press
-# 	attr_accessor :name
-# 	def initialize(name, role)
-# 		@name = name
-# 		puts "Article: #{name[0..45]}..."
-# 	end
-
-# 	def validate(params, previous_data)
-# 		return nil
-# 	end
-# end
-
-# class Project
-# 	attr_accessor :name, :type
-# 	def initialize(name, type)
-# 		@name = name
-# 		@type = type
-# 		puts "Project Name: #{@name}"
-# 	end
-
-# 	def validate(params, previous_data)
-# 		return nil
-# 	end
-# end
-
-
-
-
-
-
-
-#This is the toughest one -- needs some work, we'll see what happens
-# class Person
-# 	@@profile_photo_path = "./assets/auto_generated/profile_pics"
-
-# 	attr_accessor :name, :status
-# 	def initialize(name, status)
-# 		@name = name
-# 		@status = status
-# 		puts "Name: #{@name}"
-# 	end
-
-# 	def validate(param, previous_data)
-# 		if @gscholar_link
-# 			if param[0]=='gscholar'
-# 				print "Scraping Google Scholar..."
-# 				scrape_google_scholar(@gscholar_link)
-# 				print "done\n"
-# 			elsif not previous_data.empty?
-# 				puts "User has google scholar credentials, using last scraped instance, consider adding 'gscholar' argument to update from google"
-# 				merge_previous_data(previous_data)
-# 			end
-# 		end
-# 	end
-
-# 	def merge_previous_data(previous_data)
-# 		previous_data.each do |key, value|
-# 			if (instance_eval "@#{key}").nil?
-# 				instance_eval "@#{key} = value"
-# 			end
-# 		end
-# 	end
-
+end

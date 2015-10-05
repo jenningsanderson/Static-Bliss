@@ -9,29 +9,18 @@ class StaticBliss
 	attr_reader :site_config, :credentials, :data_dir
 
 	def initialize(args={})
-
-		puts args.inspect
-		
-		puts "Initializing Static Bliss with the _config.yml file"
+		print "Loading _config.yml file... "
 		read_config
-		puts ""
-
 		@data_dir = args["data_directory"] || './_data'
-
-		# begin
-		# 	instance_eval "#{command} (#{args})"
-		# rescue
-		# 	"oops, failed"
-		# end
 	end
 
 	def read_config
 		if File.exists?('_config.yml')
-			puts "Loading site_config from _config.yml"
 			@site_config = YAML::load(File.open('_config.yml'))
+			puts "done"
 		else
-			puts "_config.yml does not exist, Entering test environment (spec/_config.yml)"
 			@site_config = YAML::load(File.open('spec/_config.yml'))
+			puts "WARN: entering test env: (spec/_config.yml)"
 		end
 
 		# if File.exists?(@site_config['credentials'])
@@ -61,13 +50,13 @@ class StaticBliss
 
 		tabs.each do |tab|
 			tab_name = site_config["sheets"][sheet]["types"][tab-1]
-			puts "========== Hitting Google API for: #{args[:page]}, tab: #{tab}: #{tab_name}"
+			puts "\n========== Hitting Google API for: #{args[:page]}, tab: #{tab}: #{tab_name}========"
 
 			begin
 				url = URI("https://spreadsheets.google.com/feeds/list/#{key}/#{tab}/public/values?alt=json")
 				data = JSON.parse(Net::HTTP.get(url))
 			rescue => e
-				puts "\n\nThe HTTP Request Failed:"
+				puts "\nThe HTTP Request Failed:"
 				puts "\tEnsure the document is published"
 				puts "\tEnsure the headers are on row 1\n\n"
 			end
@@ -99,19 +88,21 @@ class StaticBliss
 					results << this_obj.format_as_yaml
 				end
 			rescue => e
-				puts "Something in parsing failed"
-				puts e.backtrace
+				puts "\nSomething in parsing failed:"
+				puts "\tEnsure the headers are on row 1"
 				puts e
 			end
 
-			puts results
-
 			#Now results the file to YAML
-			write_yaml({
-				directory: data_dir,
-				filename: tab_name, 
-				data: results
-			})
+			unless results.empty?
+				write_yaml({
+					directory: data_dir,
+					filename: tab_name, 
+					data: results
+				})
+			else
+				puts "Results are empty, file not written"
+			end
 		end
 	end
 
@@ -242,7 +233,7 @@ class StaticBliss
 		
 		site_config['sheets'].each do |object, vals|
 			if vals['types'].count > 1
-				puts "\tbliss update #{object} [all]"
+				puts "\tbliss update #{object}"
 				vals['types'].each do |type|
 					puts "\tbliss update #{object} #{type}"
 				end
@@ -250,8 +241,6 @@ class StaticBliss
 				puts "\tbliss update #{object}"
 			end
 		end
-		puts "\tbliss update all"
-		puts "\nNote: Additional parameters for each of these functions may be available depending on your object classes"
 	end
 
 
