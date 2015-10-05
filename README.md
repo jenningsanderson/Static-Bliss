@@ -22,10 +22,10 @@ Modify your ````_config.yml```` file to include and entry like this:
 			object : Person
 			types  : ['current', 'alumni']
 
-Where 
-	1. ```update people``` will then become the command, ```key``` is the spreadsheet key
-	2. ```object``` is the Ruby class from ```lib/google_drive/models.rb``` 
-	3. ```types``` is an array of the titles of the worksheets, making subcommands possible: ```update people alumni```.
+1. ```update people``` will then become the command.
+2. ```key``` is the spreadsheet key.
+3. ```object``` is the desired Ruby class from ```lib/google_drive/models.rb```.
+4. ```types``` is an array of the titles of the worksheets in the document, making subcommands possible to only update a specific tab: ```update people alumni```.
 
 Additionally, create another file called ````_secret_config.yml```` with the following contents:
 
