@@ -8,12 +8,14 @@ program :name, 'Static Bliss'
 program :version, '1.2.1'
 program :description, 'An update tool to build YAML files for Jekyll from Google Sheets'
 
+#TODO: Add option for an external configuration file
+
 command :update do |c|
   c.syntax = 'bliss update [file]'
   c.description = 'Run it'
   c.action do |args, options|
   	runtime = StaticBliss.new()
-  	runtime.update_new( {
+  	runtime.update( {
   			page: args[0], 
   			tab: args[1]
   		} )

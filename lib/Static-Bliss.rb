@@ -23,6 +23,7 @@ class StaticBliss
 			puts "WARN: entering test env: (spec/_config.yml)"
 		end
 
+		## Figure out what to do with credentials...
 		# if File.exists?(@site_config['credentials'])
 		# 	puts "Loading credentials from site_config location"
 		# 	@credentials = YAML::load(File.open(@site_config['credentials']))
@@ -32,7 +33,7 @@ class StaticBliss
 		# end
 	end
 
-	def update_new(args={})
+	def update(args={})
 
 		#Set the sheet, default to people
 		sheet    = args[:page] || 'people'
@@ -106,130 +107,8 @@ class StaticBliss
 		end
 	end
 
-
-	#This function uses the secret Amazon s3 credentials to publish the site to an s3 Bucket
-	#defined in the config
-	def publish( *args )
-		puts "Publishing the site to: #{@credentials['production_bucket']}"
-		
-		#Require the bucket manager and make the connection, then publish
-		require_relative 'aws/bucket_manager'
-		@manager = BucketManager.new(credentials['s3_id'], credentials['s3_secret'])
-    	@manager.connect_to_bucket(credentials['production_bucket'])
-
-    	puts `jekyll build`
-  	
-  		@manager.write_directory('_site')
-	end
-
-	def push( *args )
-		puts "Preparing to Push the directory to S3"
-		args.flatten!
-		puts args
-		
-		unless args.empty?
-			puts "Copying #{args[0]} to #{@credentials['push_to_bucket']}"
-
-			require_relative 'aws/bucket_manager'
-			@manager = BucketManager.new(credentials['s3_id'], credentials['s3_secret'])
-	    	@manager.connect_to_bucket(credentials['push_to_bucket'])
-	    	@manager.write_directory(args[0])
-		else
-			puts "Error: Need name of directory"
-	    end
-    end
-
-	#This workhorse function takes a variety of arguments and allows for 
-	def update( *args )
-		args.flatten!
-		
-		require_relative 'google_drive/object_types'
-		require_relative 'google_drive/parse_to_yaml'
-		require_relative 'google_drive/login'
-
-		drive = GoogleDriveHandler.new(
-			p12: credentials['p12'], 
-			issuer: credentials['service_account']
-			)
-
-		@connection = GoogleDriveYAMLParser.new(
-			token: drive.token
-			)
-
-		sheet = args.shift
-		types  = [args.shift]
-		if (types[0].nil? or types[0]=='all')
-			types = @site_config['google_info'][sheet]['types']
-		end
-
-		parameters = args
-		
-		unless sheet == 'all'
-			begin
-				key 	= site_config['google_info'][sheet]['key']
-				object 	= site_config['google_info'][sheet]['object']
-
-				types.each do |this_type|
-					#Hit google
-					puts "\nHitting Google for #{sheet} of type #{this_type}"
-					data_to_write = @connection.read_sheet key, this_type.capitalize, object, parameters
-					#Write data
-					@connection.write_to_yaml data_to_write, site_config['data_directory'], this_type.capitalize
-					puts "========================================================"
-				end
-			
-			rescue => error
-				puts error.inspect
-				puts "Error, that type of object doesn't exist for this site"
-				puts error.backtrace
-			end
-		else
-			puts "Doing all the updates"
-			puts "Will iterate through each object type and run the appropriate functions"
-		end
-	end
-
-	def flickr(*args)
-		require_relative 'flickr/flickr_connect'
-		#Should be able to choose the set that you want here...
-
-		flickr_sets = site_config['flickr']
-		data_dir = site_config['data_directory']
-
-		flickr_output = {}
-
-		flickr_sets.keys.each do |flickr_set|
-			puts "\tProcessing #{flickr_set}"
-			config = {
-				:api_key => @credentials['flickr_api_key'],
-				:set => flickr_sets[flickr_set]['set']
-			}
-
-			flickr_manager = FlickrConnect.new(config)
-			flickr_manager.get_photos
-			flickr_output[flickr_set] = flickr_manager.photos
-		end
-		puts flickr_output
-		write_yaml(data_dir, 'flickr_urls', flickr_output)
-	end
-
 	def list_operations
 		puts "\nThe following functions are available based on your configuration:"
-		
-		# if credentials['production_bucket']
-		# 	puts "\tbliss publish"
-		# end
-
-		# if credentials['push_to_bucket']
-		# 	puts "\tbliss push"
-		# end
-
-		# if credentials['flickr_api_key']
-		# 	puts "\tbliss flickr"
-		# 	@site_config['flickr'].keys.each do |set|
-		# 		puts "\tbliss flickr #{set}"
-		# 	end
-		# end
 		
 		site_config['sheets'].each do |object, vals|
 			if vals['types'].count > 1
@@ -242,7 +121,6 @@ class StaticBliss
 			end
 		end
 	end
-
 
 	def write_yaml(args)
 		directory = args[:directory]
@@ -262,4 +140,58 @@ class StaticBliss
 			puts error.backtrace
 		end
 	end
+
+	#This function uses the secret Amazon s3 credentials to publish the site to an s3 Bucket
+	#defined in the config
+	# def publish( *args )
+	# 	puts "Publishing the site to: #{@credentials['production_bucket']}"	
+	# 	#Require the bucket manager and make the connection, then publish
+	# 	require_relative 'aws/bucket_manager'
+	# 	@manager = BucketManager.new(credentials['s3_id'], credentials['s3_secret'])
+ 	#    	@manager.connect_to_bucket(credentials['production_bucket'])
+ 	#    	puts `jekyll build`
+ 	#  		@manager.write_directory('_site')
+	# end
+
+	# def push( *args )
+	# 	puts "Preparing to Push the directory to S3"
+	# 	args.flatten!
+	# 	puts args
+		
+	# 	unless args.empty?
+	# 		puts "Copying #{args[0]} to #{@credentials['push_to_bucket']}"
+
+	# 		require_relative 'aws/bucket_manager'
+	# 		@manager = BucketManager.new(credentials['s3_id'], credentials['s3_secret'])
+	#     	@manager.connect_to_bucket(credentials['push_to_bucket'])
+	#     	@manager.write_directory(args[0])
+	# 	else
+	# 		puts "Error: Need name of directory"
+	#     end
+ 	#    end
+
+	# def flickr(*args)
+	# 	require_relative 'flickr/flickr_connect'
+	# 	#Should be able to choose the set that you want here...
+
+	# 	flickr_sets = site_config['flickr']
+	# 	data_dir = site_config['data_directory']
+
+	# 	flickr_output = {}
+
+	# 	flickr_sets.keys.each do |flickr_set|
+	# 		puts "\tProcessing #{flickr_set}"
+	# 		config = {
+	# 			:api_key => @credentials['flickr_api_key'],
+	# 			:set => flickr_sets[flickr_set]['set']
+	# 		}
+
+	# 		flickr_manager = FlickrConnect.new(config)
+	# 		flickr_manager.get_photos
+	# 		flickr_output[flickr_set] = flickr_manager.photos
+	# 	end
+	# 	puts flickr_output
+	# 	write_yaml(data_dir, 'flickr_urls', flickr_output)
+	# end
+
 end
