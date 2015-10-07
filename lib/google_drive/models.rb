@@ -32,6 +32,14 @@ class GoogleSheetToYaml
 	end
 end
 
+class Default < GoogleSheetToYaml
+	attr_accessor :name
+
+	def validate
+		puts name
+	end
+end
+
 class Person < GoogleSheetToYaml
 	attr_accessor :name, :picture, :role, :bio, :gscholarlink, :interests, :affiliation, :url 
 	@@profile_photo_path = "./assets/auto_generated/profile_pics"

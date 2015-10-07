@@ -47,7 +47,7 @@ class StaticBliss
 
 		#Now hit the web...
 		key = site_config["sheets"][sheet]["key"]
-		obj = site_config["sheets"][sheet]["object"]
+		obj = site_config["sheets"][sheet]["object"] || "Default"
 
 		tabs.each do |tab|
 			tab_name = site_config["sheets"][sheet]["types"][tab-1]
