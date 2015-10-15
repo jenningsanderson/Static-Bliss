@@ -1,6 +1,2 @@
-*.gem
-*.lock
-_secret*.*
-_data/
-assets/
-_*
+_site
+.sass-cache
