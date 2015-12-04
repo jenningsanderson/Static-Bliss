@@ -84,7 +84,7 @@ class StaticBliss
 					
 					this_obj = eval("#{obj}.new(#{this_data})")
 					
-					this_obj.validate
+					this_obj.validate(args)
 
 					results << this_obj.format_as_yaml
 				end

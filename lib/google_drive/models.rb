@@ -16,7 +16,7 @@ class GoogleSheetToYaml
 		end
 	end
 
-	def validate
+	def validate(args={})
 		puts "No validate function for: #{filename}"
 	end
 
@@ -35,7 +35,7 @@ end
 class Default < GoogleSheetToYaml
 	attr_accessor :name
 
-	def validate
+	def validate(args={})
 		puts name
 	end
 end
@@ -50,6 +50,7 @@ class Person < GoogleSheetToYaml
 		require 'nokogiri'
 		require 'open-uri'
 		doc_html = Nokogiri::HTML(open(gscholar_url))
+		# puts doc_html
 
 		if picture.nil? or picture == ""
 			get_photo(doc_html)
@@ -142,10 +143,10 @@ class Person < GoogleSheetToYaml
 		end
 	end
 
-	def validate
+	def validate(args={})
 		begin
 			puts "Validating: #{ self.name }"
-			unless gscholarlink == "" or gscholarlink.nil?
+			unless gscholarlink == "" or gscholarlink.nil? or args[:gscholar]=='false'
 				scrape_google_scholar(gscholarlink)
 			end
 		rescue => e
@@ -157,7 +158,7 @@ end
 class Publication < GoogleSheetToYaml
 	attr_accessor :name, :authors, :year, :downloadlink, :title, :etc, :category, :abstract										
 
-	def validate
+	def validate(args={})
 		puts "Validating: #{self.name}"
 	end
 
@@ -172,7 +173,7 @@ end
 class Press < GoogleSheetToYaml
 	attr_accessor :name, :year
 
-	def validate
+	def validate(args={})
 		puts "Article: #{name[0..45]}..."
 	end
 end
@@ -180,7 +181,7 @@ end
 class Course < GoogleSheetToYaml
 	attr_accessor :name, :number, :url, :credits, :description																		
 
-	def validate
+	def validate(args={})
 		puts "#{number}: #{name}"
 	end
 end

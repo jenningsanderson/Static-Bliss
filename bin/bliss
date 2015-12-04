@@ -15,11 +15,15 @@ default_command :list
 command :update do |c|
   c.syntax = 'bliss update [file]'
   c.description = 'Run it'
+  c.option '--scholar [TRUE|FALSE]', String, 'Scrape Google Scholar'
   c.action do |args, options|
+    options.default :scholar => 'TRUE'
   	runtime = StaticBliss.new()
+    puts options.scholar
   	runtime.update( {
   			page: args[0], 
-  			tab: args[1]
+  			tab: args[1],
+        gscholar: options.scholar.downcase
   		} )
   end
 end
