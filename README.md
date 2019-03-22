@@ -3,14 +3,14 @@ Static-Bliss
 
 A gem to build YAML files from Google spreadsheets to assist in maintaining static [Jekyll](https://jekyllrb.com/) websites.
 
-###Installation
+### Installation
 The easiest method is to add the following line to your ```Gemfile```
 	
 	gem 'Static-Bliss', :git => 'git://github.com/jenningsanderson/Static-Bliss.git'
 
 and run ```bundle install```
 
-###Directory Requirements
+### Directory Requirements
 A ````_data```` folder at the root of your site will hold the generated data, this is the default Jekyll data directory available at ```site.data```
 ###Configuration
 Modify your ````_config.yml```` file to include and entry like this:
@@ -26,7 +26,7 @@ Modify your ````_config.yml```` file to include and entry like this:
 3. ```object``` is the desired Ruby class from ```lib/google_drive/models.rb```.
 4. ```types``` is an array of the titles of the worksheets in the document, making subcommands possible to only update a specific tab: ```update people alumni```.
 
-###Execution
+### Execution
 If installed with bundler (recommended), then you have to execute with bundler:
 
 	bundle exec bliss
