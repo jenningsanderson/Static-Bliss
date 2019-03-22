@@ -12,7 +12,8 @@ and run ```bundle install```
 
 ### Directory Requirements
 A ````_data```` folder at the root of your site will hold the generated data, this is the default Jekyll data directory available at ```site.data```
-###Configuration
+
+### Configuration 
 Modify your ````_config.yml```` file to include and entry like this:
 
 	sheets :
